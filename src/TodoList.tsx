@@ -7,6 +7,7 @@ interface FormProps {
   username: string;
   password: string;
   password1: string;
+  extraError?: string;
 }
 
 const TodoList = () => {
@@ -14,13 +15,25 @@ const TodoList = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<FormProps>({
     defaultValues: {
       email: "@naver.com",
     },
   });
-  const onVaild = (data: any) => {
-    console.log(data);
+  const onVaild = (data: FormProps) => {
+    if (data.password !== data.password1) {
+      setError(
+        "password1",
+        {
+          message: "password are not the same",
+        },
+        {
+          shouldFocus: true,
+        }
+      );
+    }
+    // setError("extraError", { message: "Server offline." });
   };
   console.log(errors);
 
@@ -42,7 +55,15 @@ const TodoList = () => {
         />
         <span>{errors?.email?.message}</span>
         <input
-          {...register("firstname", { required: "firstname is required" })}
+          {...register("firstname", {
+            required: "firstname is required",
+            validate: {
+              noNico: (value) =>
+                !value.includes("nico") ? "no nico allowed" : true,
+              noNick: (value) =>
+                !value.includes("nick") ? "no nick allowed" : true,
+            },
+          })}
           placeholder="First Name"
         />
         <span>{errors?.firstname?.message}</span>
@@ -84,6 +105,7 @@ const TodoList = () => {
         <span>{errors?.password1?.message}</span>
 
         <button>Add</button>
+        <span>{errors?.extraError?.message}</span>
       </form>
     </div>
   );
